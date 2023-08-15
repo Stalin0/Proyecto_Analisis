@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>NutriBot</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="icon" type="images/jpeg" href="images/logo.jpeg">
+  <style>
+    body {
+      padding: 20px;
+      background-color: #d7f5df;
+      background-image: url("images/fondo3.jpeg");
+      font-family: Arial, sans-serif;
+    }
+
+    .chat-container {
+      background-color: #ffffff;
+      padding: 20px;
+      margin-bottom: 20px;
+      height: 400px;
+      overflow-y: scroll;
+      border-radius: 5px;
+      border: 6px solid black;
+    }
+
+    .message {
+      background-color: #ffe3ff;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+    }
+
+    .message-gpt {
+      background-color: #f5e8ff; /* Color de fondo para respuestas de ChatGPT */
+      border-radius: 5px;
+      border: 5px solid black;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      color: #040404;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    #messageInput {
+      resize: none;
+      border: 5px solid black;
+    }
+
+    .btn-primary {
+      margin-top: 10px;
+      background-color: #af7ca4;
+      border-color: #af7ca4;
+      border: 2px solid black;
+    }
+
+    .btn-primary:hover,
+    .btn-primary:focus {
+      background-color: #9e6b91;
+      border-color: #9e6b91;
+    }
+
+    .alert-success {
+      margin-top: 10px;
+      background-color: #ffdee4;
+      border-color: #ffdee4;
+      color: #8e4252;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>NutriBot</h1>
+    <div class="chat-container" id="chatContainer"></div>
+    <form id="messageForm">
+      <div class="form-group">
+        <textarea class="form-control" id="messageInput" rows="3" placeholder="Escribe un mensaje"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Enviar</button>
+    </form>
+  </div>
+
+  <script>
+    // Obtener referencia a los elementos del DOM
+    const chatContainer = document.getElementById('chatContainer');
+    const messageForm = document.getElementById('messageForm');
+    const messageInput = document.getElementById('messageInput');
+
+    // Función para agregar un mensaje al chat
+    function addMessage(message, isGPTResponse) {
+      const messageElement = document.createElement('div');
+      messageElement.classList.add('message');
+      if (isGPTResponse) {
+        messageElement.classList.add('message-gpt');
+      }
+      messageElement.innerText = message;
+      chatContainer.appendChild(messageElement);
+    }
+
+    // Evento submit del formulario
+    messageForm.addEventListener('submit', function(event) {
+      event.preventDefault();
+      const message = messageInput.value;
+
+      // Realizar la llamada a la API para obtener la respuesta de ChatGPT
+      fetch('http://localhost:5000/mensajes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ mensaje: message })
+      })
+      .then(response => response.json())
+      .then(data => {
+        // Si la respuesta es exitosa, agregar el mensaje al chat
+        addMessage(message, false);
+        messageInput.value = '';
+        showMessageSavedNotification();
+
+        // Verificar si hay respuesta de ChatGPT
+        if (data.respuesta) {
+          addMessage(data.respuesta, true);
+        }
+      })
+      .catch(error => {
+        console.error('Error al obtener la respuesta de ChatGPT:', error);
+        // Manejar el error según tus necesidades
+      });
+    });
+
+    // Función para mostrar la notificación de mensaje guardado exitosamente
+    function showMessageSavedNotification() {
+      const notificationElement = document.createElement('div');
+      notificationElement.classList.add('alert', 'alert-success');
+      notificationElement.innerText = 'Mensaje guardado exitosamente';
+
+      // Agregar la notificación al DOM
+      document.body.appendChild(notificationElement);
+
+      // Desaparecer la notificación después de 2 segundos
+      setTimeout(() => {
+        document.body.removeChild(notificationElement);
+      }, 2000);
+    }
+  </script>
+</body>
+</html>
