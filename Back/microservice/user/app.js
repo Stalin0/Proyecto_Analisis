@@ -31,11 +31,26 @@ app.get('/usuarios', async (req, res) => {
 // Ruta para crear un nuevo usuario (POST)
 app.post('/crear_usuarios', async (req, res) => {
   const { email, contrasenia } = req.body;
+
   try {
+    // Verificar si el correo electrónico ya existe en la base de datos
+    const existingUser = await pool.query(
+      'SELECT * FROM usuario WHERE email = $1',
+      [email]
+    );
+
+    if (existingUser.rows.length > 0) {
+      // Si el usuario ya existe, devolvemos una respuesta con un mensaje indicando el conflicto
+      res.status(409).json({ error: 'El correo electrónico ya está registrado' });
+      return;
+    }
+
+    // Si el correo electrónico no existe, creamos el nuevo usuario
     await pool.query(
       'INSERT INTO usuario (email, contrasenia) VALUES ($1, $2)',
       [email, contrasenia]
     );
+    
     res.json({ mensaje: 'Usuario creado correctamente' });
   } catch (err) {
     console.error('Error al crear el usuario:', err);
