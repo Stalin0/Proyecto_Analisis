@@ -9,7 +9,7 @@ conn = psycopg2.connect(
     port="5432",
     database="proyecto",
     user="postgres",
-    password="admin"
+    password="1234"
 )
 
 # Configuración de la API de ChatGPT
