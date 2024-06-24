@@ -10,7 +10,7 @@ const pool = new Pool({
   user: 'postgres',
   host: 'localhost',
   database: 'proyecto',
-  password: 'admin',
+  password: '1234',
   port: 5432,
 });
 app.use(cors());
@@ -83,3 +83,5 @@ app.post('/verificar_usuario', async (req, res) => {
 app.listen(port, () => {
   console.log(`Servidor API corriendo en http://localhost:${port}`);
 });
+
+module.exports = app;
